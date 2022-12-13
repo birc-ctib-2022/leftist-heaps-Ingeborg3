@@ -93,15 +93,28 @@ HeapNode = Union[InnerNode[Ord], EmptyClass]
 # The actual functionality
 def merge(left: HeapNode[Ord], right: HeapNode[Ord]) -> HeapNode[Ord]:
     """Merge two heaps into one."""
-    # FIXME: The merge doesn't restore the leftst property if it is
-    # violated. You need to fix that.
-    return right \
-        if left is Empty \
-        else left \
-        if right is Empty \
-        else InnerNode(left.value, left.left, merge(left.right, right)) \
-        if left.value < right.value \
-        else InnerNode(right.value, right.left, merge(left, right.right))
+    if left is Empty:
+        return right
+    if right is Empty:
+        return left
+    if left.value < right.value:
+        return restore(InnerNode(left.value, left.left, merge(left.right, right)))
+    else:
+        return restore(InnerNode(right.value, right.left, merge(left, right.right)))
+
+#    return right \
+#        if left is Empty \
+#        else left \
+#        if right is Empty \
+#        else restore(InnerNode(left.value, left.left, merge(left.right, right))) \
+#        if left.value < right.value \
+#        else restore(InnerNode(right.value, right.left, merge(left, right.right)))
+
+
+    # general merge in combination with the merge() function is used to
+    # merge leftist heaps.
+
+
 
 
 def restore(n: HeapNode[Ord]) -> HeapNode[Ord]:
@@ -111,8 +124,15 @@ def restore(n: HeapNode[Ord]) -> HeapNode[Ord]:
     This means ensuring that the n.left.rank > n.right.rank
     when n is an inner node (n is not Empty).
     """
-    # FIXME: you need to implement this
-    ...
+    if n.right.rank > n.left.rank:
+        n.right, n.left = n.left, n.right
+    return InnerNode(n.value, n.left, n.right)
+    # Hvordan sikre at leftist heap property ikke er violated 
+    # for nogle af de andre parent nodes? 
+    # restore() bruges i forbindelse med merge, og det må antages, at
+    # to heaps, der gives til merge som argumenter, opfylder heap 
+    # invarianten. Dvs., heap varianten kan kun være violated for de 
+    # nodes, der merges, ikke for parent nodes længere nede i heapen.
 
 
 class Heap(Generic[Ord]):
